@@ -11,7 +11,6 @@ pygame.display.set_caption("Super Star Wars")
 
 # Couleurs
 WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
 
 # Framerate
 clock = pygame.time.Clock()
@@ -22,11 +21,11 @@ player = Player(100, SCREEN_HEIGHT - 150)  # Position initiale du joueur
 
 # Boucle principale
 running = True
-clock = pygame.time.Clock()
 
 while running:
-    delta_time = clock.tick(60) / 1000.0  # Temps écoulé (en secondes) depuis la dernière frame
+    delta_time = clock.tick(FPS) / 1000.0  # Temps écoulé (en secondes) depuis la dernière frame
 
+    # Gestion des événements
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -35,11 +34,14 @@ while running:
     keys = pygame.key.get_pressed()
     player.handle_input(keys)
 
-    # Mise à jour des éléments du jeu (inclut l'animation)
-    player.update(SCREEN_WIDTH, SCREEN_HEIGHT, delta_time)
+    # Mise à jour des éléments du jeu (mouvement et animation)
+    player.update(delta_time)
 
     # Dessin à l'écran
-    screen.fill((255, 255, 255))  # Fond blanc
+    screen.fill(WHITE)  # Fond blanc
     player.draw(screen)
 
     pygame.display.flip()  # Mise à jour de l'écran
+
+# Quitter pygame proprement
+pygame.quit()
