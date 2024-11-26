@@ -28,9 +28,10 @@ class Player:
         self.attack_state = 0
         self.all_sprites_attack = [ 
             self.load_attack_sprites(self.sprite_sheet, self.cell_width, self.cell_height, 9, 5),
-            self.load_attack_sprites(self.sprite_sheet, self.cell_width, self.cell_height, 8, 6) 
+            self.load_attack_sprites(self.sprite_sheet, self.cell_width, self.cell_height, 9, 6),
+            self.load_attack_sprites(self.sprite_sheet, self.cell_width, self.cell_height, 8, 7) 
         ]
-        self.sprites_super_attack = self.load_super_attack_sprites(self.sprite_sheet, self.cell_width, self.cell_height, 25, 7)
+        self.sprites_super_attack = self.load_super_attack_sprites(self.sprite_sheet, self.cell_width, self.cell_height, 25, 8)
 
         # for i, sprite in enumerate(self.sprites_super_attack):
         #     print(f"Sprite {i}: {sprite.get_width()}x{sprite.get_height()}")
@@ -64,12 +65,13 @@ class Player:
         self.jump_locked = False  # Verrou pour éviter les sauts continus
         self.is_super_jumping = False  # Indique si le joueur fait un super saut
         self.is_super_run = False  # Indique si le joueur fait un super saut
+        self.attack_triggered = False
+        self.is_attacking = False # Le joueur ne saute pas
 
 
         # Variable pour savoir si le joueur est en mouvement
         self.is_moving = False # Le joueur ne bouge pas
         self.is_jumping = False # Le joueur ne saute pas
-        self.is_attacking = False # Le joueur ne saute pas
 
     def load_idle_sprites(self, sheet, cell_width, cell_height, columns, line):
         """Découpe une ligne spécifique de sprites."""
@@ -250,19 +252,20 @@ class Player:
 
         # Gestion de l'attaque
         if keys[pygame.K_s]:
-            if not self.is_attacking:  # Début d'une attaque
+            if not self.is_attacking and not self.attack_triggered:  # Nouvelle attaque seulement si pas déjà déclenchée
                 self.is_attacking = True
+                self.attack_triggered = True
                 self.current_frame = 0
 
-                # Super attaque (Shift + S)
-                if keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]:
+                if keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]:  # Super attaque
                     self.sprites_attack = self.sprites_super_attack
                 else:
-                    # Alterne entre les attaques normales
+                    # Alterner entre les attaques normales
                     self.sprites_attack = self.all_sprites_attack[self.attack_state]
                     self.attack_state = (self.attack_state + 1) % len(self.all_sprites_attack)
         else:
-            self.is_attacking = False  # Termine l'attaque
+            # Réinitialise l'état déclenché lorsque la touche "S" est relâchée
+            self.attack_triggered = False
             
 
 
@@ -350,7 +353,7 @@ class Player:
     
     def handle_attack_animation(self, delta_time):
         """Anime l'attaque du joueur."""
-        if self.timer >= 0.05:  # Vitesse de changement d'image pour l'attaque
+        if self.timer >= 0.1:  # Vitesse de changement d'image pour l'attaque
             self.timer = 0
             self.current_frame += 1
             if self.current_frame >= len(self.sprites_attack):  # Vérifie la fin de l'animation
